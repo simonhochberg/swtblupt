@@ -1,6 +1,10 @@
-# PostgreSQL Cheatsheet
+# SQL
 
-## Starting up postgres
+This directory contains the SQL commands used to build, query, and modify the database(s) used in this analysis. I'll keep useful PostgreSQL commands here, PostGIS methodology, as well as other relevant information for this process.
+
+## PostgreSQL Cheatsheet
+
+### Starting up postgres
 
 To open the PostgreSQL database, open the terminal and type the following command:
 
