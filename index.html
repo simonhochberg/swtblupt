@@ -11,12 +11,32 @@
 			padding: 30px;
 		}
 
+		.inner-div {
+			width: 1000px;
+			margin: auto;
+		}
+
 		#mapid { 
 			height: 600px;
 			width: 1000px;
 			margin: auto;
 		}
 
+		#query-former {
+			height: 300px;
+			width: 700px;
+			margin: auto;
+			text-align: center;
+			background-color: #b3b3b3;
+		}
+
+		#sql-query-div {
+			height: 20px;
+			width: 700px;
+			margin: auto;
+			text-align: center;
+			color: red;
+		}
 
 	</style>
 	 
@@ -24,6 +44,7 @@
 	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
 	  <!-- Make sure you put this AFTER Leaflet's CSS -->
  <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+ <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 </head>
 <body style="background-color:#efefef;">
 	
@@ -33,9 +54,75 @@
 		<h2>(S.W.T.B.L.U.P.T.)</h2>
 		<h3><i>swet-bloopt</i></h3>
 	</div>
-
+	<div class="outer-div">
+		<div id="test-div"></div>
+	</div>
 	<!--div containing the map -->
 	 <div class="outer-div"><div id="mapid"></div></div>
+	 
+
+	 <!--Interactive area where stops are toggled // SQL query is generated -->
+
+	 <div class="outer-div">
+	 	<div id="query-former">
+		 	<br>
+		 	<h2>Select headways</h2>
+		 	<br>
+		 	<form name="am_peak">
+		 	<b>AM Peak Period (6AM-10AM):</b>
+				<input type="radio" name="am_peak" value="10"> 10 min
+	  			<input type="radio" name="am_peak" value="15"> 15 min
+	  			<input type="radio" name="am_peak" value="20"> 20 min  
+			</form>
+			<form>
+			<b>PM Peak Period (3PM-7PM):</b>
+				<input type="radio" name="pm_peak" value="10"> 10 min
+	  			<input type="radio" name="pm_peak" value="15"> 15 min
+	  			<input type="radio" name="pm_peak" value="20"> 20 min  
+			</form>
+			<form>
+		 	<b>Weekday (6AM-10PM):</b>
+				<input type="radio" name="weekday" value="10"> 10 min
+	  			<input type="radio" name="weekday" value="15"> 15 min
+	  			<input type="radio" name="weekday" value="20"> 20 min  
+			</form>
+			<form>
+			<b>Saturday (8AM-10PM):</b>
+				<input type="radio" name="saturday" value="ignore"> Ignore Saturday Headways
+				<input type="radio" name="saturday" value="10"> 10 min
+	  			<input type="radio" name="saturday" value="15"> 15 min
+	  			<input type="radio" name="saturday" value="20"> 20 min  
+			</form>
+			<form>
+			<b>Sunday (8AM-10PM):</b>
+				<input type="radio" name="sunday" value="ignore"> Ignore Sunday Headways
+				<input type="radio" name="sunday" value="10"> 10 min
+	  			<input type="radio" name="sunday" value="15"> 15 min
+	  			<input type="radio" name="sunday" value="20"> 20 min 
+	  		</form>
+	  		<button onclick="generateQuery()">Generate SQL query</button>
+	 	</div>
+	 </div>
+
+
+	 <!-- test div to reveal SQL query -->
+	 <div class="outer-div">
+	 	<div id="sql-query-div">
+	 		<p id="sql-query">example SQL query here</p>
+	 	</div>
+	 </div>
+
+
+ 	 <div class="outer-div">
+     <div class="inner-div">
+ 		<button onclick="buildPage()">load data</button>
+ 	 </div>
+     </div>
+
+
+	 <div class="outer-div">
+	 	<div class="inner-div">simon hochberg | <a href="mailto:simon_hochberg@berkeley.edu">email</a> | <a href="https://github.com/simonhochberg/swtblupt">github</a></div>
+	 </div>
 
 <script type="text/javascript">
 	
@@ -51,10 +138,59 @@
 // var marker = L.marker([34.0522, -118.2437]).addTo(mymap);
 // marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
 
+	// testing adding a polygon 
+	/*
 	var latlngs = [[37, -109.05],[41, -109.03],[41, -102.05],[37, -102.04]];
-	var polygon = L.polygon(latlngs, {color: 'red'}).addTo(mymap);
+	var polygon = L.polygon(latlngs, {color: 'red'}).addTo(mymap); */
 	// zoom the map to the polygon
-	map.fitBounds(polygon.getBounds());
+	// mymap.fitBounds(polygon.getBounds());
+	
+function generateQuery() {
+  	// sun = document.getElementsByTagName('am_peak').value;
+  	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
+  	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
+  	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
+  	var sat = document.querySelector('input[name="saturday"]:checked').value;
+  	var sun = document.querySelector('input[name="sunday"]:checked').value;
+
+  	// generate the SQL query to be passed to the PostgreSQL to return eligible stops
+
+  	txt = "SELECT * FROM lametro WHERE ";
+  	txt += "(am_pk_dir0 <= " + am_peak + " OR am_pk_dir1 <= " + am_peak + ")";
+  	txt += " AND (pm_pk_dir0 <= " + pm_peak + " OR pm_pk_dir1 <= " + pm_peak + ")";
+  	txt += " AND (wkdy_dir0 <= " + wkdy + " OR wkdy_dir1 <= " + wkdy + ")";
+  	
+  	if (sat != "ignore"){
+  		txt += " AND (sat_dir0 <= " + sat + " OR sat_dir1 <= " + sat + ")";
+  	}
+  	else {
+
+  	}
+
+  	if (sun != "ignore") {
+		txt += " AND (sun_dir0 <= " + sun + " OR sun_dir1 <= " + sun + ")";
+  	}
+  	else{
+
+  	}
+  	
+  	txt += ";"
+
+	document.getElementById("sql-query").innerHTML = txt;
+}
+
+// FROM SFMTA ELEVATOR FEED
+
+function buildPage() {
+    $('#test-div').load('data.php', function(response,status,xhr){
+        //console.log(response);
+        if(status == 'success') {
+            myObj = JSON.parse(response);
+            console.log(myObj);
+        }
+	}
+};
+
 
 </script>
 
