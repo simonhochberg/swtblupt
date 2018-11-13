@@ -2,7 +2,7 @@
 
 ## Starting up postgres
 
-In the terminal:
+To open the PostgreSQL database, open the terminal and type the following command:
 
->>psql -d test
+>psql -d test
 
