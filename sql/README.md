@@ -1,4 +1,4 @@
-# Postgresql Cheatsheet
+# PostgreSQL Cheatsheet
 
 ## Starting up postgres
 
