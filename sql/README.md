@@ -4,5 +4,5 @@
 
 In the terminal:
 
-'psql -d test'
+>>psql -d test
 
