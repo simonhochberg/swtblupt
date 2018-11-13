@@ -12,4 +12,5 @@ or <i>swtblupt</i>
 <li>Create PostGIS extension in PostgreSQL database</li>
 <li>Render station-area polygons on map</li>
 <li>Re-design query-builder</li>
+<li>Come up with a system for uniquely identifying transit stops across agencies</li>
 </ol>
