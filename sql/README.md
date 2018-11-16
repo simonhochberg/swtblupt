@@ -10,3 +10,6 @@ To open the PostgreSQL database, open the terminal and type the following comman
 
 >psql -d test
 
+To view the schema of a table within the PostgreSQL database
+
+> \d <table_name>
