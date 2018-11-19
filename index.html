@@ -187,7 +187,7 @@ function loadGeoJSONdata() {
 
 
 function generateQuery() {
-  	// sun = document.getElementsByTagName('am_peak').value;
+
   	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
   	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
   	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
@@ -220,7 +220,7 @@ function generateQuery() {
 	document.getElementById("sql-query").innerHTML = txt;
 }
 
-// FROM SFMTA ELEVATOR FEED
+// CRIBBED FROM SFMTA ELEVATOR FEED
 
 function buildPage() {
     $('#test-div').load('data.php', function(response,status,xhr){
