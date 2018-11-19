@@ -1,61 +1,19 @@
 <html>
 <head>
 	<title>swtblupt: home</title>
-	<style>
-		
-		.header-title {
-			color:#4d4d4d;
-		}
-
-		.outer-div {
-			padding: 30px;
-		}
-
-		.inner-div {
-			width: 1000px;
-			margin: auto;
-		}
-
-		#mapid { 
-			height: 600px;
-			width: 1000px;
-			margin: auto;
-		}
-
-		#query-former {
-			height: 300px;
-			width: 700px;
-			margin: auto;
-			text-align: center;
-			background-color: #b3b3b3;
-		}
-
-		#sql-query-div {
-			height: 20px;
-			width: 700px;
-			margin: auto;
-			text-align: center;
-			color: red;
-		}
-
-		#test-div {
-			width: 200px;
-			margin: auto;
-		}
-
-	</style>
 	 
+	<link rel="stylesheet" href="swtblupt.css">
 	<!-- leaflet stuff -->
 	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
 	  <!-- Make sure you put this AFTER Leaflet's CSS -->
- <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
- <!-- leaflet omnivore: https://www.mapbox.com/mapbox.js/plugins/#leaflet-omnivore -->
- <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
- <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js'></script>
+	 <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+	 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	 <!-- leaflet omnivore: https://www.mapbox.com/mapbox.js/plugins/#leaflet-omnivore -->
+	 <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
+	 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js'></script>
 
 </head>
-<body style="background-color:#efefef;">
+<body>
 	
 	<!-- div containing the title at the top of the page -->
 	<div style="text-align:center;" class="header-title">
@@ -64,8 +22,20 @@
 		<h3><i>swet-bloopt</i></h3>
 	</div>
 	
+	<div class="outer-div">
+		<div id="layer-picker">
+			<p> The drop-down below allows users to select a policy scenario:</p>
+			<select id="layer-picker-value" onchange="loadGeoJSONdata()">
+			  <option>Pick a scenario...</option>
+			  <option value="test-run-827">SB 827 (bus only)</option>
+			  <option value="test-run-827-comm-of-concern-dif">Excluding communities of concern (SCAG)</option>
+			</select>
+
+		</div>
+	</div>
+
 	<!--div containing the map -->
-	 <div class="outer-div"><div id="mapid"></div></div>
+	<div class="outer-div"><div id="mapid"></div></div>
 	 
 
 	 <!--Interactive area where stops are toggled // SQL query is generated -->
@@ -125,6 +95,8 @@
 
 <script type="text/javascript">
 	
+	var datalayer;
+
 	var mymap = L.map('mapid').setView([34.0522, -118.2437], 10);
 
 	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -172,12 +144,12 @@
     }
     */
 
-
+/*
 	$.getJSON("https://raw.githubusercontent.com/simonhochberg/swtblupt/master/test-data/test-run-827.geojson",function(data){
 	// L.geoJson function is used to parse geojson file and load on to map
 	L.geoJson(data, {color:"blue"}).addTo(mymap);
 });
-
+*/
 	// console.log(testGeo);
 
 	// console.log(Object.keys(testGeo['_layers']));
@@ -191,7 +163,29 @@
 
 	// zoom the map to the polygon
 	// mymap.fitBounds(polygon.getBounds());
-	
+
+function loadGeoJSONdata() {
+
+	var file = document.getElementById("layer-picker-value").value;
+	console.log(file);
+	var path = "https://raw.githubusercontent.com/simonhochberg/swtblupt/master/test-data/" + file + ".geojson";
+	if (datalayer != null) {
+		mymap.removeLayer(datalayer);
+	}
+	else {
+
+	};
+
+	// load GeoJSON file
+	$.getJSON(path,function(data){
+		datalayer = L.geoJson(data, {color:"blue"});
+		//datalayer.addTo(mymap);
+		mymap.addLayer(datalayer);
+});
+
+}
+
+
 function generateQuery() {
   	// sun = document.getElementsByTagName('am_peak').value;
   	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
