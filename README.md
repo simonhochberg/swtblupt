@@ -7,7 +7,7 @@ or <i>swtblupt</i>
 SWTBLUPT is a policy tool that allows users to quickly compare different impacts of land use policies on a map to help policy-makers and stakeholders craft policy in line with their goals. The tool is built off of assumptions introduced in SB 827, but it can be adapted if future iterations of the bill look different.
 
 ### Background
-In January 2018, California State Senator Scott Wiener (D-San Francisco) introduced [SB 827](https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=201720180SB827) legislation that would have required higher allowable densities and maximum heights as well as reduced parking minimums for projects considered to be "transit-rich housing projects". To be considered "transit-rich", the project had to be located within a certain distance of either a "major transit stop" or a "high-quality bus corridor." The bill defined "major transit stop" as meeting one of the following criteria:
+In January 2018, California State Senator Scott Wiener (D-San Francisco) introduced [SB 827](https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=201720180SB827), legislation that would have required higher allowable densities and maximum heights as well as reduced parking minimums for projects considered to be "transit-rich housing projects". To be considered "transit-rich", the project had to be located within a certain distance of either a "major transit stop" or a "high-quality bus corridor." The bill defined "major transit stop" as meeting one of the following criteria:
 
 1. Any existing rail transit station
 2. Any ferry terminal served by either bus or rail transit service
