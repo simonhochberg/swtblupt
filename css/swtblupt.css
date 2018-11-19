@@ -1,0 +1,51 @@
+
+/* stylesheet for swtblupt project */
+
+body {
+	background-color: #efefef;
+}
+
+.header-title {
+	color:#4d4d4d;
+}
+
+.outer-div {
+	padding: 30px;
+}
+
+.inner-div {
+	width: 1000px;
+	margin: auto;
+}
+
+#mapid { 
+	height: 600px;
+	width: 1000px;
+	margin: auto;
+}
+
+#query-former {
+	height: 300px;
+	width: 700px;
+	margin: auto;
+	text-align: center;
+	background-color: #b3b3b3;
+}
+
+#sql-query-div {
+	height: 20px;
+	width: 700px;
+	margin: auto;
+	text-align: center;
+	color: red;
+}
+
+#test-div {
+	width: 200px;
+	margin: auto;
+}
+
+#layer-picker {
+	width: 400px;
+	margin: auto;
+}
