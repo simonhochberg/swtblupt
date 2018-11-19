@@ -11,6 +11,8 @@
 	 <!-- leaflet omnivore: https://www.mapbox.com/mapbox.js/plugins/#leaflet-omnivore -->
 	 <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
 	 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js'></script>
+	 <!-- adding turf.js -->
+	 <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
 
 </head>
 <body>
@@ -22,7 +24,7 @@
 		<h3><i>swet-bloopt</i></h3>
 	</div>
 	
-	<div class="outer-div">
+	<!--<div class="outer-div">
 		<div id="layer-picker">
 			<p> The drop-down below allows users to select a policy scenario:</p>
 			<select id="layer-picker-value" onchange="loadGeoJSONdata()">
@@ -32,7 +34,7 @@
 			</select>
 
 		</div>
-	</div>
+	</div>-->
 
 	<!--div containing the map -->
 	<div class="outer-div"><div id="mapid"></div></div>
@@ -65,19 +67,20 @@
 			</form>
 			<form>
 			<b>Saturday (8AM-10PM):</b>
-				<input type="radio" name="saturday" value="ignore"> Ignore Saturday Headways
+				<input type="radio" name="saturday" value="9999"> Ignore Saturday Headways
 				<input type="radio" name="saturday" value="15"> 15 min
 	  			<input type="radio" name="saturday" value="20"> 20 min
 	  			<input type="radio" name="saturday" value="30"> 30 min  
 			</form>
 			<form>
 			<b>Sunday (8AM-10PM):</b>
-				<input type="radio" name="sunday" value="ignore"> Ignore Sunday Headways
+				<input type="radio" name="sunday" value="9999"> Ignore Sunday Headways
 				<input type="radio" name="sunday" value="15"> 15 min
 	  			<input type="radio" name="sunday" value="20"> 20 min
 	  			<input type="radio" name="sunday" value="30"> 30 min 
 	  		</form>
 	  		<button onclick="generateQuery()">Generate SQL query</button>
+	  		<button onclick="queryGeoJSON()">Go go go!</button>
 	 	</div>
 	 </div>
 
@@ -164,6 +167,22 @@
 	// zoom the map to the polygon
 	// mymap.fitBounds(polygon.getBounds());
 
+// parameters for loading stops
+file = "la-metro-stops";
+branch = "master";
+path = "https://raw.githubusercontent.com/simonhochberg/swtblupt/" + branch + "/test-data/" + file + ".geojson";
+/*
+$.getJSON(path,function(data){
+		
+		//console.log(data['features'][0]['geometry']['coordinates']);
+
+		L.geoJson(data, {color:"red"}).addTo(mymap);
+		//datalayer.addTo(mymap);
+});
+*/
+
+var buffer;
+
 function loadGeoJSONdata() {
 
 	var file = document.getElementById("layer-picker-value").value;
@@ -184,7 +203,6 @@ function loadGeoJSONdata() {
 });
 
 }
-
 
 function generateQuery() {
 
@@ -220,18 +238,60 @@ function generateQuery() {
 	document.getElementById("sql-query").innerHTML = txt;
 }
 
-// CRIBBED FROM SFMTA ELEVATOR FEED
+function queryGeoJSON () {
+	
+	console.log("querying...");
 
-function buildPage() {
-    $('#test-div').load('data.php', function(response,status,xhr){
-        //console.log(response);
-        if(status == 'success') {
-            myObj = JSON.parse(response);
-            console.log(myObj);
-        }
+	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
+  	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
+  	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
+  	var sat = document.querySelector('input[name="saturday"]:checked').value;
+  	var sun = document.querySelector('input[name="sunday"]:checked').value;
+
+	var n;
+	
+	
+
+	$.getJSON(path,function(data){
+		new_buffer = L.layerGroup();
+
+		buffer_array = [];
+		for (n=0; n < data['features'].length; n++) {
+			
+
+			if (((data['features'][n]['properties']['am_pk_dir0'] < parseInt(am_peak)) | (data['features'][n]['properties']['am_pk_dir1'] < parseInt(am_peak))) & ((data['features'][n]['properties']['pm_pk_dir0'] < parseInt(pm_peak)) | (data['features'][n]['properties']['pm_pk_dir1'] < parseInt(pm_peak))) & ((data['features'][n]['properties']['wkdy_dir0'] < parseInt(wkdy)) | (data['features'][n]['properties']['wkdy_dir1'] < parseInt(wkdy))) & ((data['features'][n]['properties']['sat_dir0'] < parseInt(sat)) | (data['features'][n]['properties']['sat_dir1'] < parseInt(sat))) & ((data['features'][n]['properties']['sun_dir0'] < parseInt(sun)) | (data['features'][n]['properties']['sun_dir1'] < parseInt(sun)))) {
+				
+				coords = data['features'][n]['geometry']['coordinates'];
+				
+				var point = turf.point(coords);
+				var buffered = turf.buffer(point, 0.25, {units: 'miles'});
+
+				L.geoJson(buffered).addTo(new_buffer);
+
+				//buffer_array.push(buffered);
+
+				}
+			else {
+
+			}
+
+		};
+	
+	// console.log(new_buffer);
+	
+	if (buffer != null) {
+		mymap.removeLayer(buffer);
+		mymap.addLayer(new_buffer);
+
 	}
-	)
-};
+	else {
+		mymap.addLayer(new_buffer);
+		console.log("added layer");
+	};
+	
+	buffer = new_buffer;
+
+	})};
 
 </script>
 
