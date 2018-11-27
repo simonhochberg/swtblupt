@@ -134,7 +134,7 @@
 		$.getJSON("https://raw.githubusercontent.com/simonhochberg/swtblupt/master/test-data/communities-of-concern-SCAG.geojson",function(data){
 				// commOfConcern = turf.polygon(L.geoJson(data));
 				commOfConcern = L.layerGroup();
-				L.geoJson(data, {color:"red"}).addTo(commOfConcern);
+				L.geoJson(data, {color:"yellow"}).addTo(commOfConcern);
 		})
 
 	};
