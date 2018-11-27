@@ -15,7 +15,7 @@
 	 <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
 
 </head>
-<body>
+<body onload="getGeoJSON()">
 	
 	<!-- div containing the title at the top of the page -->
 	<div style="text-align:center;" class="header-title">
@@ -104,7 +104,9 @@
 	  			<label for="sunday" id="sunday_label">30 min</label> 
 	  		</form>
 	  		<!--<button onclick="generateQuery()">Generate SQL query</button>-->
-	  		<button onclick="queryGeoJSON()">Run scenario	</button>
+	  		<button onclick="queryGeoJSON()">Run scenario</button>
+	  		<br>
+	  		<button onclick="toggleCommunitiesOfConcern()">Show/Hide Communities of Concern</button>
 	 	</div>
 	 </div>
 
@@ -122,7 +124,26 @@
 
 <script type="text/javascript">
 	
+	function getGeoJSON() {
+		console.log("getting GeoJSON");
+		$.getJSON(path,function(data){
+			loadedGeoJSON = data;
+		})
+
+		// load SCAG communities of concern
+		$.getJSON("https://raw.githubusercontent.com/simonhochberg/swtblupt/master/test-data/communities-of-concern-SCAG.geojson",function(data){
+				// commOfConcern = turf.polygon(L.geoJson(data));
+				commOfConcern = L.layerGroup();
+				L.geoJson(data, {color:"red"}).addTo(commOfConcern);
+		})
+
+	};
+
+
+
 	var datalayer;
+
+	var cocOnMap = false;
 
 	var mymap = L.map('mapid').setView([34.0522, -118.2437], 10);
 
@@ -167,6 +188,19 @@
 		document.getElementById(label_id).innerHTML = t.value + " min";
 	};
 
+	function toggleCommunitiesOfConcern() {
+		if (cocOnMap == true) {
+		console.log("coc - false");
+		mymap.removeLayer(commOfConcern);
+		cocOnMap = false;
+
+		}
+		else {
+			console.log("coc - true");
+			mymap.addLayer(commOfConcern);
+			cocOnMap = true;
+		};
+	}
 
 // parameters for loading stops
 file = "la-metro-stops";
@@ -239,17 +273,11 @@ function generateQuery() {
 	document.getElementById("sql-query").innerHTML = txt;
 }
 
+/*
 function queryGeoJSON () {
 	
 	console.log("querying...");
 
-	/* Get values for radio buttons
-	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
-  	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
-  	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
-  	var sat = document.querySelector('input[name="saturday"]:checked').value;
-  	var sun = document.querySelector('input[name="sunday"]:checked').value;
-	*/
 	
 	if (document.getElementById("consider_am_peak").checked == true) {
 		var am_peak = document.getElementById("am_peak").value; }
@@ -326,6 +354,94 @@ function queryGeoJSON () {
 	buffer = new_buffer;
 
 	})};
+	*/
+
+	function queryGeoJSON () {
+	
+	console.log("querying...");
+
+	/* Get values for radio buttons
+	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
+  	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
+  	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
+  	var sat = document.querySelector('input[name="saturday"]:checked').value;
+  	var sun = document.querySelector('input[name="sunday"]:checked').value;
+	*/
+	
+	if (document.getElementById("consider_am_peak").checked == true) {
+		var am_peak = document.getElementById("am_peak").value; }
+	else {
+		var am_peak = 9999;
+	};
+
+	if (document.getElementById("consider_pm_peak").checked == true) {
+		var pm_peak = document.getElementById("pm_peak").value; }
+	else {
+		var pm_peak = 9999;
+	};
+
+	if (document.getElementById("consider_weekday").checked == true) {
+		var wkdy = document.getElementById("weekday").value; }
+	else {
+		var wkdy = 9999;
+	};
+
+	if (document.getElementById("consider_saturday").checked == true) {
+		var sat = document.getElementById("saturday").value; }
+	else {
+		var sat = 9999;
+	};
+
+	if (document.getElementById("consider_sunday").checked == true) {
+		var sun = document.getElementById("sunday").value; }
+	else {
+		var sun = 9999;
+	};
+
+	console.log(am_peak, pm_peak, wkdy, sat, sun);
+	var n;
+	
+	new_buffer = L.layerGroup();
+
+	buffer_array = [];
+	for (n=0; n < loadedGeoJSON['features'].length; n++) {
+		
+
+		if (((loadedGeoJSON['features'][n]['properties']['am_pk_dir0'] < parseInt(am_peak)) | (loadedGeoJSON['features'][n]['properties']['am_pk_dir1'] < parseInt(am_peak))) & ((loadedGeoJSON['features'][n]['properties']['pm_pk_dir0'] < parseInt(pm_peak)) | (loadedGeoJSON['features'][n]['properties']['pm_pk_dir1'] < parseInt(pm_peak))) & ((loadedGeoJSON['features'][n]['properties']['wkdy_dir0'] < parseInt(wkdy)) | (loadedGeoJSON['features'][n]['properties']['wkdy_dir1'] < parseInt(wkdy))) & ((loadedGeoJSON['features'][n]['properties']['sat_dir0'] < parseInt(sat)) | (loadedGeoJSON['features'][n]['properties']['sat_dir1'] < parseInt(sat))) & ((loadedGeoJSON['features'][n]['properties']['sun_dir0'] < parseInt(sun)) | (loadedGeoJSON['features'][n]['properties']['sun_dir1'] < parseInt(sun)))) {
+			
+			coords = loadedGeoJSON['features'][n]['geometry']['coordinates'];
+			
+			var point = turf.point(coords);
+			var buffered = turf.buffer(point, 0.25, {units: 'miles'});
+
+			L.geoJson(buffered).addTo(new_buffer);
+
+			buffer_array.push(buffered);
+
+			}
+		else {
+
+		}
+
+	};
+	
+	// union = turf.union(...buffer_array);
+
+	// console.log(new_buffer);
+	
+	if (buffer != null) {
+		mymap.removeLayer(buffer);
+		mymap.addLayer(new_buffer);
+
+	}
+	else {
+		mymap.addLayer(new_buffer);
+		console.log("added layer");
+	};
+	
+	buffer = new_buffer;
+
+	}; 
 
 </script>
 
