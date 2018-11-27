@@ -46,41 +46,65 @@
 	 	<div id="query-former">
 		 	<br>
 		 	<h2>Select headways</h2>
+		 	
+		 		<ol>
+		 			<li>Check the box to include the time range in the query.</li> 
+		 			<li>Adjust the slider to specify the required headways.</li>
+		 		</ol>
+		 	
 		 	<br>
-		 	<form name="am_peak">
-		 	<b>AM Peak Period (6AM-10AM):</b>
-				<input type="radio" name="am_peak" value="10"> 10 min
+		 	<!--<form name="am_peak">
+		 	<input class="ignore-boxes" name="ignore_am_peak" type="checkbox" onchange="showSlider(this)" checked>-->
+		 	<input class="consider-boxes" id="consider_am_peak" type="checkbox" onchange="disableSlider(this)" checked>
+	  		<!--<label for="ignore_am_peak"> Ignore</label>-->
+		 	<b id="am_peak_text">AM Peak Period (6AM-10AM):</b>
+				<!--<input type="radio" name="am_peak" value="10"> 10 min
 	  			<input type="radio" name="am_peak" value="15"> 15 min
-	  			<input type="radio" name="am_peak" value="20"> 20 min  
+	  			<input type="radio" name="am_peak" value="20"> 20 min-->
+	  			<!--<input type="checkbox" id="am_peak" name="am_peak" checked="True" onclick="console.log(this.id)">-->
+  				<input type="range" id="am_peak" min="0" max="120" value="15" step="5" oninput="labelSlider(this)">
+	  			<label for="am_peak" id="am_peak_label">15 min</label>
 			</form>
-			<form>
-			<b>PM Peak Period (3PM-7PM):</b>
-				<input type="radio" name="pm_peak" value="10"> 10 min
+			<form name="pm_peak">
+			<input class="consider-boxes" id="consider_pm_peak" type="checkbox" onchange="disableSlider(this)" checked>
+			<b id="pm_peak_text">PM Peak Period (3PM-7PM):</b>
+				<!--<input type="radio" name="pm_peak" value="10"> 10 min
 	  			<input type="radio" name="pm_peak" value="15"> 15 min
-	  			<input type="radio" name="pm_peak" value="20"> 20 min  
+	  			<input type="radio" name="pm_peak" value="20"> 20 min -->
+	  			<input type="range" id="pm_peak" min="0" max="120" value="15" step="5" oninput="labelSlider(this)">
+	  			<label for="am_peak" id="pm_peak_label">15 min</label> 
 			</form>
-			<form>
-		 	<b>Weekday (6AM-10PM):</b>
-				<input type="radio" name="weekday" value="10"> 10 min
+			<form name="weekday">
+			<input class="consider-boxes" id="consider_weekday" type="checkbox" onchange="disableSlider(this)" checked>
+		 	<b id="weekday_text">Weekday (6AM-10PM):</b>
+				<!--<input type="radio" name="weekday" value="10"> 10 min
 	  			<input type="radio" name="weekday" value="15"> 15 min
-	  			<input type="radio" name="weekday" value="20"> 20 min  
+	  			<input type="radio" name="weekday" value="20"> 20 min -->
+	  			<input type="range" id="weekday" min="0" max="120" value="20" step="5" oninput="labelSlider(this)">
+	  			<label for="weekday" id="weekday_label">20 min</label>  
 			</form>
-			<form>
-			<b>Saturday (8AM-10PM):</b>
-				<input type="radio" name="saturday" value="9999"> Ignore Saturday Headways
+			<form name="saturday">
+			<input class="consider-boxes" id="consider_saturday" type="checkbox" onchange="disableSlider(this)" checked>
+			<b id="saturday_text">Saturday (8AM-10PM):</b>
+				<!--<input type="radio" name="saturday" value="9999"> Ignore Saturday Headways
 				<input type="radio" name="saturday" value="15"> 15 min
 	  			<input type="radio" name="saturday" value="20"> 20 min
-	  			<input type="radio" name="saturday" value="30"> 30 min  
+	  			<input type="radio" name="saturday" value="30"> 30 min -->
+	  			<input type="range" id="saturday" min="0" max="120" value="30" step="5" oninput="labelSlider(this)">
+	  			<label for="saturday" id="saturday_label">30 min</label>  
 			</form>
-			<form>
-			<b>Sunday (8AM-10PM):</b>
-				<input type="radio" name="sunday" value="9999"> Ignore Sunday Headways
+			<form name="sunday">
+			<input class="consider-boxes" id="consider_sunday" type="checkbox" onchange="disableSlider(this)" checked>
+			<b id="sunday_text">Sunday (8AM-10PM):</b>
+				<!--<input type="radio" name="sunday" value="9999"> Ignore Sunday Headways
 				<input type="radio" name="sunday" value="15"> 15 min
 	  			<input type="radio" name="sunday" value="20"> 20 min
-	  			<input type="radio" name="sunday" value="30"> 30 min 
+	  			<input type="radio" name="sunday" value="30"> 30 min-->
+	  			<input type="range" id="sunday" min="0" max="120" value="30" step="5" oninput="labelSlider(this)">
+	  			<label for="sunday" id="sunday_label">30 min</label> 
 	  		</form>
 	  		<!--<button onclick="generateQuery()">Generate SQL query</button>-->
-	  		<button onclick="queryGeoJSON()">Run scenario</button>
+	  		<button onclick="queryGeoJSON()">Run scenario	</button>
 	 	</div>
 	 </div>
 
@@ -109,63 +133,40 @@
     accessToken: 'pk.eyJ1Ijoic2ltb25ob2NoYmVyZyIsImEiOiIwYVZ1Uk1VIn0.EcS4Ld8UB_UDeqJqJqQIyg'
 }).addTo(mymap);
 
-// var marker = L.marker([34.0522, -118.2437]).addTo(mymap);
-// marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
 
-	// testing adding a polygon 
-	/*
-	var latlngs = [
-  		[ // first polygon
-		    [[37, -109.05],[41, -109.03],[41, -102.05],[37, -102.04]], // outer ring
-		    [[37.29, -108.58],[40.71, -108.58],[40.71, -102.50],[37.29, -102.50]] // hole
-  		],
-		[ // second polygon
-		   	[[41, -111.03],[45, -111.04],[45, -104.05],[41, -104.05]]
-		  ]
-];
-	var polygon = L.polygon(latlngs, {color: 'yellow'}).addTo(mymap); */
-	
-	/*var testPoly = "MULTIPOLYGON (((-118.4858305088884 34.013884, -118.4858515443671 34.01345581299368, -118.4859144482201 34.0130317496623, -118.486018614649 34.01261589396757, -118.486163040474 34.01221225082714, -118.4863463347955 34.01182470754512, -118.4865667323891 34.01145699637517, -118.4868221107053 34.01111265857685, -118.4871100103114 34.01079501031141, -118.4874276585769 34.01050711070528, -118.4877719963752 34.01025173238907, -118.4881397075451 34.01003133479553, -118.4885272508271 34.009848040474, -118.4889308939676 34.00970361464899, -118.4893467496623 34.00959944822014, -118.4897708129937 34.0095365443671, -118.490199 34.00951550888837, -118.4906271870063 34.0095365443671, -118.4910512503377 34.00959944822014, -118.4914671060324 34.00970361464899, -118.4918707491729 34.009848040474, -118.4922582924549 34.01003133479553, -118.4926260036248 34.01025173238907, -118.4929703414231 34.01050711070528, -118.4932879896886 34.01079501031141, -118.4935758892947 34.01111265857685, -118.4938312676109 34.01145699637517, -118.4940516652045 34.01182470754512, -118.494234959526 34.01221225082714, -118.494379385351 34.01261589396757, -118.4944835517799 34.0130317496623, -118.4945464556329 34.01345581299368, -118.4945674911116 34.013884, -118.4945464556329 34.01431218700631, -118.4944835517799 34.01473625033769, -118.494379385351 34.01515210603242, -118.494234959526 34.01555574917285, -118.4940516652045 34.01594329245487, -118.4938312676109 34.01631100362483, -118.4935758892947 34.01665534142315, -118.4932879896886 34.01697298968858, -118.4929703414231 34.01726088929471, -118.4926260036248 34.01751626761093, -118.4922582924549 34.01773666520446, -118.4918707491729 34.01791995952599, -118.4914671060324 34.018064385351, -118.4910512503377 34.01816855177986, -118.4906271870063 34.01823145563289, -118.490199 34.01825249111162, -118.4897708129937 34.01823145563289, -118.4893467496623 34.01816855177986, -118.4889308939676 34.018064385351, -118.4885272508271 34.01791995952599, -118.4881397075451 34.01773666520446, -118.4877719963752 34.01751626761093, -118.4874276585769 34.01726088929471, -118.4871100103114 34.01697298968858, -118.4868221107053 34.01665534142315, -118.4865667323891 34.01631100362483, -118.4863463347955 34.01594329245487, -118.486163040474 34.01555574917285, -118.486018614649 34.01515210603242, -118.4859144482201 34.01473625033769, -118.4858515443671 34.01431218700631, -118.4858305088884 34.013884)), ((-118.3488926050777 34.07024, -118.3489136545391 34.06981152837047, -118.3489766002054 34.06938718315695, -118.3490808358754 34.06897105103582, -118.3492253577027 34.06856713958691, -118.3494087738631 34.06817933869824, -118.3496293179587 34.06781138310439, -118.3498848660293 34.06746681641886, -118.3501729570072 34.06714895700719, -118.3504908164189 34.06686086602928, -118.3508353831044 34.06660531795873, -118.3512033386982 34.06638477386316, -118.3515911395869 34.06620135770276, -118.3519950510358 34.06605683587543, -118.3524111831569 34.06595260020537, -118.3528355283705 34.06588965453907, -118.353264 34.0658686050777, -118.3536924716295 34.06588965453907, -118.354116816843 34.06595260020537, -118.3545329489642 34.06605683587543, -118.3549368604131 34.06620135770276, -118.3553246613018 34.06638477386316, -118.3556926168956 34.06660531795873, -118.3560371835811 34.06686086602928, -118.3563550429928 34.06714895700719, -118.3566431339707 34.06746681641886, -118.3568986820413 34.06781138310439, -118.3571192261368 34.06817933869824, -118.3573026422972 34.06856713958691, -118.3574471641246 34.06897105103582, -118.3575513997946 34.06938718315695, -118.3576143454609 34.06981152837047, -118.3576353949223 34.07024, -118.3576143454609 34.07066847162953, -118.3575513997946 34.07109281684305, -118.3574471641246 34.07150894896417, -118.3573026422972 34.07191286041309, -118.3571192261368 34.07230066130175, -118.3568986820413 34.0726686168956, -118.3566431339707 34.07301318358113, -118.3563550429928 34.07333104299281, -118.3560371835811 34.07361913397072, -118.3556926168956 34.07387468204126, -118.3553246613018 34.07409522613684, -118.3549368604131 34.07427864229724, -118.3545329489642 34.07442316412457, -118.354116816843 34.07452739979463, -118.3536924716295 34.07459034546093, -118.353264 34.0746113949223, -118.3528355283705 34.07459034546093, -118.3524111831569 34.07452739979463, -118.3519950510358 34.07442316412457, -118.3515911395869 34.07427864229724, -118.3512033386982 34.07409522613684, -118.3508353831044 34.07387468204126, -118.3504908164189 34.07361913397072, -118.3501729570072 34.07333104299281, -118.3498848660293 34.07301318358113, -118.3496293179587 34.0726686168956, -118.3494087738631 34.07230066130175, -118.3492253577027 34.07191286041309, -118.3490808358754 34.07150894896417, -118.3489766002054 34.07109281684305, -118.3489136545391 34.07066847162953, -118.3488926050777 34.07024)))";
+// experiments in different ways to input headways
 
+	function disableSlider(t) {
+		
+		// use id from the checkbox to disable/enable the selector
+		var box_id = t.id;
 
-	var testGeo = omnivore.wkt.parse(testPoly);
-	
-	numOfShapes = Object.keys(testGeo['_layers']).length;
-	
-	//console.log(numOfShapes);
-	
-	var i;
-	var j;
+		var slider_id = box_id.substring(9);
+		var slider_label_id = slider_id + "_label";
+		var text_id = slider_id + "_text";
 
-	for (i = 0; i < numOfShapes; i++) { 
-    	lyr = Object.keys(testGeo['_layers'])[i];
-    	for (j = 0; j < 2; j++){
-    		var geom = testGeo['_layers'][lyr]["_latlngs"][j];
-    		var testGeoOnMap = L.polygon(geom, {color:'red'}).addTo(mymap);
-    		//console.log(j, geom);
-    	}
-    }
-    */
+		// DOM elements for manipulation
+		var x = document.getElementById(slider_id);
+		var x_label = document.getElementById(slider_label_id);
+		var x_text = document.getElementById(text_id);
 
-/*
-	$.getJSON("https://raw.githubusercontent.com/simonhochberg/swtblupt/master/test-data/test-run-827.geojson",function(data){
-	// L.geoJson function is used to parse geojson file and load on to map
-	L.geoJson(data, {color:"blue"}).addTo(mymap);
-});
-*/
-	// console.log(testGeo);
+		if (t.checked == true) {
+			x.disabled = false;
+			x_label.style.opacity = 1;
+			x_text.style.opacity = 1;
+		}
+		else {
+			x.disabled = true;
+			x_label.style.opacity = 0.4;
+			x_text.style.opacity = 0.4;
+		}
+	};
 
-	// console.log(Object.keys(testGeo['_layers']));
+	function labelSlider(t) {
+		var label_id = t.id + "_label";
+		document.getElementById(label_id).innerHTML = t.value + " min";
+	};
 
-	// var geom = testGeo._layers[67]._latlngs[0];
-	
-	// console.log(geom);
-
-	// var testGeoOnMap = L.polygon(geom, {color:'red'}).addTo(mymap);
-
-
-	// zoom the map to the polygon
-	// mymap.fitBounds(polygon.getBounds());
 
 // parameters for loading stops
 file = "la-metro-stops";
@@ -242,12 +243,45 @@ function queryGeoJSON () {
 	
 	console.log("querying...");
 
+	/* Get values for radio buttons
 	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
   	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
   	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
   	var sat = document.querySelector('input[name="saturday"]:checked').value;
   	var sun = document.querySelector('input[name="sunday"]:checked').value;
+	*/
+	
+	if (document.getElementById("consider_am_peak").checked == true) {
+		var am_peak = document.getElementById("am_peak").value; }
+	else {
+		var am_peak = 9999;
+	};
 
+	if (document.getElementById("consider_pm_peak").checked == true) {
+		var pm_peak = document.getElementById("pm_peak").value; }
+	else {
+		var pm_peak = 9999;
+	};
+
+	if (document.getElementById("consider_weekday").checked == true) {
+		var wkdy = document.getElementById("weekday").value; }
+	else {
+		var wkdy = 9999;
+	};
+
+	if (document.getElementById("consider_saturday").checked == true) {
+		var sat = document.getElementById("saturday").value; }
+	else {
+		var sat = 9999;
+	};
+
+	if (document.getElementById("consider_sunday").checked == true) {
+		var sun = document.getElementById("sunday").value; }
+	else {
+		var sun = 9999;
+	};
+
+	console.log(am_peak, pm_peak, wkdy, sat, sun);
 	var n;
 	
 	
