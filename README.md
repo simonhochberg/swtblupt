@@ -1,6 +1,7 @@
 # swtblupt
 state-wide transit-based land use policy tool
 or <i>swtblupt</i>
+A professional report for the Master of City Planning degree at U.C. Berkeley
 
 ## Project
 
@@ -33,11 +34,7 @@ TBD
 
 ## To-do
 <ol>
-<li>Connect PostgreSQL database to index.html
-<ul>
-<li>PHP?</li>
-<li>Python?</li>
-</ul></li>
+<li>Connect PostgreSQL database to index.html</li>
 <li>Create PostGIS extension in PostgreSQL database</li>
 <li>Render station-area polygons on map</li>
 <li>Re-design query-builder</li>
