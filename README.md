@@ -2,6 +2,9 @@
 state-wide transit-based land use policy tool
 or <i>swtblupt</i>
 
+
+A professional report for the Master of City Planning degree at U.C. Berkeley
+
 ## Project
 
 SWTBLUPT is a policy tool that allows users to quickly compare different impacts of land use policies on a map to help policy-makers and stakeholders craft policy in line with their goals. The tool is built off of assumptions introduced in SB 827, but it can be adapted if future iterations of the bill look different.
@@ -33,11 +36,7 @@ TBD
 
 ## To-do
 <ol>
-<li>Connect PostgreSQL database to index.html
-<ul>
-<li>PHP?</li>
-<li>Python?</li>
-</ul></li>
+<li>Connect PostgreSQL database to index.html</li>
 <li>Create PostGIS extension in PostgreSQL database</li>
 <li>Render station-area polygons on map</li>
 <li>Re-design query-builder</li>
