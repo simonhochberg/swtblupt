@@ -1,0 +1,449 @@
+<html>
+<head>
+	<title>swtblupt: home</title>
+	 
+	<link rel="stylesheet" href="css/swtblupt.css">
+	<!-- leaflet stuff -->
+	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
+	  <!-- Make sure you put this AFTER Leaflet's CSS -->
+	 <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+	 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	 <!-- leaflet omnivore: https://www.mapbox.com/mapbox.js/plugins/#leaflet-omnivore -->
+	 <script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
+	 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js'></script>
+	 <!-- adding turf.js -->
+	 <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+
+</head>
+<body onload="getGeoJSON()">
+	
+	<!-- div containing the title at the top of the page -->
+	<div style="text-align:center;" class="header-title">
+		<h1>State-Wide Transit-Based Land Use Policy Tool</h1>
+		<h2>(S.W.T.B.L.U.P.T.)</h2>
+		<h3><i>swet-bloopt</i></h3>
+	</div>
+	
+	<!--<div class="outer-div">
+		<div id="layer-picker">
+			<p> The drop-down below allows users to select a policy scenario:</p>
+			<select id="layer-picker-value" onchange="loadGeoJSONdata()">
+			  <option>Pick a scenario...</option>
+			  <option value="test-run-827">SB 827 (bus only)</option>
+			  <option value="test-run-827-comm-of-concern-dif">Excluding communities of concern (SCAG)</option>
+			</select>
+
+		</div>
+	</div>-->
+
+	<!--div containing the map -->
+	<div class="outer-div"><div id="mapid"></div></div>
+	 
+
+	 <!--Interactive area where stops are toggled // SQL query is generated -->
+
+	 <div class="outer-div">
+	 	<div id="query-former">
+		 	<br>
+		 	<h2>Select headways</h2>
+		 	
+		 		<ol>
+		 			<li>Check the box to include the time range in the query.</li> 
+		 			<li>Adjust the slider to specify the required headways.</li>
+		 		</ol>
+		 	
+		 	<br>
+		 	<!--<form name="am_peak">
+		 	<input class="ignore-boxes" name="ignore_am_peak" type="checkbox" onchange="showSlider(this)" checked>-->
+		 	<input class="consider-boxes" id="consider_am_peak" type="checkbox" onchange="disableSlider(this)" checked>
+	  		<!--<label for="ignore_am_peak"> Ignore</label>-->
+		 	<b id="am_peak_text">AM Peak Period (6AM-10AM):</b>
+				<!--<input type="radio" name="am_peak" value="10"> 10 min
+	  			<input type="radio" name="am_peak" value="15"> 15 min
+	  			<input type="radio" name="am_peak" value="20"> 20 min-->
+	  			<!--<input type="checkbox" id="am_peak" name="am_peak" checked="True" onclick="console.log(this.id)">-->
+  				<input type="range" id="am_peak" min="0" max="120" value="15" step="5" oninput="labelSlider(this)">
+	  			<label for="am_peak" id="am_peak_label">15 min</label>
+			</form>
+			<form name="pm_peak">
+			<input class="consider-boxes" id="consider_pm_peak" type="checkbox" onchange="disableSlider(this)" checked>
+			<b id="pm_peak_text">PM Peak Period (3PM-7PM):</b>
+				<!--<input type="radio" name="pm_peak" value="10"> 10 min
+	  			<input type="radio" name="pm_peak" value="15"> 15 min
+	  			<input type="radio" name="pm_peak" value="20"> 20 min -->
+	  			<input type="range" id="pm_peak" min="0" max="120" value="15" step="5" oninput="labelSlider(this)">
+	  			<label for="am_peak" id="pm_peak_label">15 min</label> 
+			</form>
+			<form name="weekday">
+			<input class="consider-boxes" id="consider_weekday" type="checkbox" onchange="disableSlider(this)" checked>
+		 	<b id="weekday_text">Weekday (6AM-10PM):</b>
+				<!--<input type="radio" name="weekday" value="10"> 10 min
+	  			<input type="radio" name="weekday" value="15"> 15 min
+	  			<input type="radio" name="weekday" value="20"> 20 min -->
+	  			<input type="range" id="weekday" min="0" max="120" value="20" step="5" oninput="labelSlider(this)">
+	  			<label for="weekday" id="weekday_label">20 min</label>  
+			</form>
+			<form name="saturday">
+			<input class="consider-boxes" id="consider_saturday" type="checkbox" onchange="disableSlider(this)" checked>
+			<b id="saturday_text">Saturday (8AM-10PM):</b>
+				<!--<input type="radio" name="saturday" value="9999"> Ignore Saturday Headways
+				<input type="radio" name="saturday" value="15"> 15 min
+	  			<input type="radio" name="saturday" value="20"> 20 min
+	  			<input type="radio" name="saturday" value="30"> 30 min -->
+	  			<input type="range" id="saturday" min="0" max="120" value="30" step="5" oninput="labelSlider(this)">
+	  			<label for="saturday" id="saturday_label">30 min</label>  
+			</form>
+			<form name="sunday">
+			<input class="consider-boxes" id="consider_sunday" type="checkbox" onchange="disableSlider(this)" checked>
+			<b id="sunday_text">Sunday (8AM-10PM):</b>
+				<!--<input type="radio" name="sunday" value="9999"> Ignore Sunday Headways
+				<input type="radio" name="sunday" value="15"> 15 min
+	  			<input type="radio" name="sunday" value="20"> 20 min
+	  			<input type="radio" name="sunday" value="30"> 30 min-->
+	  			<input type="range" id="sunday" min="0" max="120" value="30" step="5" oninput="labelSlider(this)">
+	  			<label for="sunday" id="sunday_label">30 min</label> 
+	  		</form>
+	  		<!--<button onclick="generateQuery()">Generate SQL query</button>-->
+	  		<button onclick="queryGeoJSON()">Run scenario</button>
+	  		<br>
+	  		<button onclick="toggleCommunitiesOfConcern()">Show/Hide Communities of Concern</button>
+	 	</div>
+	 </div>
+
+
+	 <!-- test div to reveal SQL query -->
+	 <div class="outer-div">
+	 	<div id="sql-query-div">
+	 		<p id="sql-query">example SQL query here</p>
+	 	</div>
+	 </div>
+
+	 <div class="outer-div">
+	 	<div class="inner-div">simon hochberg | <a href="mailto:simon_hochberg@berkeley.edu">email</a> | <a href="https://github.com/simonhochberg/swtblupt">github</a></div>
+	 </div>
+
+<script type="text/javascript">
+	
+	function getGeoJSON() {
+		console.log("getting GeoJSON");
+		$.getJSON(path,function(data){
+			loadedGeoJSON = data;
+		})
+
+		// load SCAG communities of concern
+		$.getJSON("https://raw.githubusercontent.com/simonhochberg/swtblupt/master/test-data/communities-of-concern-SCAG.geojson",function(data){
+				// commOfConcern = turf.polygon(L.geoJson(data));
+				commOfConcern = L.layerGroup();
+				L.geoJson(data, {color:"yellow"}).addTo(commOfConcern);
+		})
+
+	};
+
+
+
+	var datalayer;
+
+	var cocOnMap = false;
+
+	var mymap = L.map('mapid').setView([34.0522, -118.2437], 10);
+
+	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'pk.eyJ1Ijoic2ltb25ob2NoYmVyZyIsImEiOiIwYVZ1Uk1VIn0.EcS4Ld8UB_UDeqJqJqQIyg'
+}).addTo(mymap);
+
+
+// experiments in different ways to input headways
+
+	function disableSlider(t) {
+		
+		// use id from the checkbox to disable/enable the selector
+		var box_id = t.id;
+
+		var slider_id = box_id.substring(9);
+		var slider_label_id = slider_id + "_label";
+		var text_id = slider_id + "_text";
+
+		// DOM elements for manipulation
+		var x = document.getElementById(slider_id);
+		var x_label = document.getElementById(slider_label_id);
+		var x_text = document.getElementById(text_id);
+
+		if (t.checked == true) {
+			x.disabled = false;
+			x_label.style.opacity = 1;
+			x_text.style.opacity = 1;
+		}
+		else {
+			x.disabled = true;
+			x_label.style.opacity = 0.4;
+			x_text.style.opacity = 0.4;
+		}
+	};
+
+	function labelSlider(t) {
+		var label_id = t.id + "_label";
+		document.getElementById(label_id).innerHTML = t.value + " min";
+	};
+
+	function toggleCommunitiesOfConcern() {
+		if (cocOnMap == true) {
+		console.log("coc - false");
+		mymap.removeLayer(commOfConcern);
+		cocOnMap = false;
+
+		}
+		else {
+			console.log("coc - true");
+			mymap.addLayer(commOfConcern);
+			cocOnMap = true;
+		};
+	}
+
+// parameters for loading stops
+file = "la-metro-stops";
+branch = "master";
+path = "https://raw.githubusercontent.com/simonhochberg/swtblupt/" + branch + "/test-data/" + file + ".geojson";
+/*
+$.getJSON(path,function(data){
+		
+		//console.log(data['features'][0]['geometry']['coordinates']);
+
+		L.geoJson(data, {color:"red"}).addTo(mymap);
+		//datalayer.addTo(mymap);
+});
+*/
+
+var buffer;
+
+function loadGeoJSONdata() {
+
+	var file = document.getElementById("layer-picker-value").value;
+	console.log(file);
+	var path = "https://raw.githubusercontent.com/simonhochberg/swtblupt/master/test-data/" + file + ".geojson";
+	if (datalayer != null) {
+		mymap.removeLayer(datalayer);
+	}
+	else {
+
+	};
+
+	// load GeoJSON file
+	$.getJSON(path,function(data){
+		datalayer = L.geoJson(data, {color:"blue"});
+		//datalayer.addTo(mymap);
+		mymap.addLayer(datalayer);
+});
+
+}
+
+function generateQuery() {
+
+  	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
+  	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
+  	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
+  	var sat = document.querySelector('input[name="saturday"]:checked').value;
+  	var sun = document.querySelector('input[name="sunday"]:checked').value;
+
+  	// generate the SQL query to be passed to the PostgreSQL to return eligible stops
+
+  	txt = "SELECT * FROM lametro WHERE ";
+  	txt += "(am_pk_dir0 <= " + am_peak + " OR am_pk_dir1 <= " + am_peak + ")";
+  	txt += " AND (pm_pk_dir0 <= " + pm_peak + " OR pm_pk_dir1 <= " + pm_peak + ")";
+  	txt += " AND (wkdy_dir0 <= " + wkdy + " OR wkdy_dir1 <= " + wkdy + ")";
+  	
+  	if (sat != "ignore"){
+  		txt += " AND (sat_dir0 <= " + sat + " OR sat_dir1 <= " + sat + ")";
+  	}
+  	else {
+
+  	}
+
+  	if (sun != "ignore") {
+		txt += " AND (sun_dir0 <= " + sun + " OR sun_dir1 <= " + sun + ")";
+  	}
+  	else{
+
+  	}
+  	
+  	txt += ";"
+
+	document.getElementById("sql-query").innerHTML = txt;
+}
+
+/*
+function queryGeoJSON () {
+	
+	console.log("querying...");
+
+	
+	if (document.getElementById("consider_am_peak").checked == true) {
+		var am_peak = document.getElementById("am_peak").value; }
+	else {
+		var am_peak = 9999;
+	};
+
+	if (document.getElementById("consider_pm_peak").checked == true) {
+		var pm_peak = document.getElementById("pm_peak").value; }
+	else {
+		var pm_peak = 9999;
+	};
+
+	if (document.getElementById("consider_weekday").checked == true) {
+		var wkdy = document.getElementById("weekday").value; }
+	else {
+		var wkdy = 9999;
+	};
+
+	if (document.getElementById("consider_saturday").checked == true) {
+		var sat = document.getElementById("saturday").value; }
+	else {
+		var sat = 9999;
+	};
+
+	if (document.getElementById("consider_sunday").checked == true) {
+		var sun = document.getElementById("sunday").value; }
+	else {
+		var sun = 9999;
+	};
+
+	console.log(am_peak, pm_peak, wkdy, sat, sun);
+	var n;
+	
+	
+
+	$.getJSON(path,function(data){
+		new_buffer = L.layerGroup();
+
+		buffer_array = [];
+		for (n=0; n < data['features'].length; n++) {
+			
+
+			if (((data['features'][n]['properties']['am_pk_dir0'] < parseInt(am_peak)) | (data['features'][n]['properties']['am_pk_dir1'] < parseInt(am_peak))) & ((data['features'][n]['properties']['pm_pk_dir0'] < parseInt(pm_peak)) | (data['features'][n]['properties']['pm_pk_dir1'] < parseInt(pm_peak))) & ((data['features'][n]['properties']['wkdy_dir0'] < parseInt(wkdy)) | (data['features'][n]['properties']['wkdy_dir1'] < parseInt(wkdy))) & ((data['features'][n]['properties']['sat_dir0'] < parseInt(sat)) | (data['features'][n]['properties']['sat_dir1'] < parseInt(sat))) & ((data['features'][n]['properties']['sun_dir0'] < parseInt(sun)) | (data['features'][n]['properties']['sun_dir1'] < parseInt(sun)))) {
+				
+				coords = data['features'][n]['geometry']['coordinates'];
+				
+				var point = turf.point(coords);
+				var buffered = turf.buffer(point, 0.25, {units: 'miles'});
+
+				L.geoJson(buffered).addTo(new_buffer);
+
+				//buffer_array.push(buffered);
+
+				}
+			else {
+
+			}
+
+		};
+	
+	// console.log(new_buffer);
+	
+	if (buffer != null) {
+		mymap.removeLayer(buffer);
+		mymap.addLayer(new_buffer);
+
+	}
+	else {
+		mymap.addLayer(new_buffer);
+		console.log("added layer");
+	};
+	
+	buffer = new_buffer;
+
+	})};
+	*/
+
+	function queryGeoJSON () {
+	
+	console.log("querying...");
+
+	/* Get values for radio buttons
+	var am_peak = document.querySelector('input[name="am_peak"]:checked').value;
+  	var pm_peak = document.querySelector('input[name="pm_peak"]:checked').value;
+  	var wkdy = document.querySelector('input[name="weekday"]:checked').value;
+  	var sat = document.querySelector('input[name="saturday"]:checked').value;
+  	var sun = document.querySelector('input[name="sunday"]:checked').value;
+	*/
+	
+	if (document.getElementById("consider_am_peak").checked == true) {
+		var am_peak = document.getElementById("am_peak").value; }
+	else {
+		var am_peak = 9999;
+	};
+
+	if (document.getElementById("consider_pm_peak").checked == true) {
+		var pm_peak = document.getElementById("pm_peak").value; }
+	else {
+		var pm_peak = 9999;
+	};
+
+	if (document.getElementById("consider_weekday").checked == true) {
+		var wkdy = document.getElementById("weekday").value; }
+	else {
+		var wkdy = 9999;
+	};
+
+	if (document.getElementById("consider_saturday").checked == true) {
+		var sat = document.getElementById("saturday").value; }
+	else {
+		var sat = 9999;
+	};
+
+	if (document.getElementById("consider_sunday").checked == true) {
+		var sun = document.getElementById("sunday").value; }
+	else {
+		var sun = 9999;
+	};
+
+	console.log(am_peak, pm_peak, wkdy, sat, sun);
+	var n;
+	
+	new_buffer = L.layerGroup();
+
+	buffer_array = [];
+	for (n=0; n < loadedGeoJSON['features'].length; n++) {
+		
+
+		if (((loadedGeoJSON['features'][n]['properties']['am_pk_dir0'] < parseInt(am_peak)) | (loadedGeoJSON['features'][n]['properties']['am_pk_dir1'] < parseInt(am_peak))) & ((loadedGeoJSON['features'][n]['properties']['pm_pk_dir0'] < parseInt(pm_peak)) | (loadedGeoJSON['features'][n]['properties']['pm_pk_dir1'] < parseInt(pm_peak))) & ((loadedGeoJSON['features'][n]['properties']['wkdy_dir0'] < parseInt(wkdy)) | (loadedGeoJSON['features'][n]['properties']['wkdy_dir1'] < parseInt(wkdy))) & ((loadedGeoJSON['features'][n]['properties']['sat_dir0'] < parseInt(sat)) | (loadedGeoJSON['features'][n]['properties']['sat_dir1'] < parseInt(sat))) & ((loadedGeoJSON['features'][n]['properties']['sun_dir0'] < parseInt(sun)) | (loadedGeoJSON['features'][n]['properties']['sun_dir1'] < parseInt(sun)))) {
+			
+			coords = loadedGeoJSON['features'][n]['geometry']['coordinates'];
+			
+			var point = turf.point(coords);
+			var buffered = turf.buffer(point, 0.25, {units: 'miles'});
+
+			L.geoJson(buffered).addTo(new_buffer);
+
+			buffer_array.push(buffered);
+
+			}
+		else {
+
+		}
+
+	};
+	
+	// union = turf.union(...buffer_array);
+
+	// console.log(new_buffer);
+	
+	if (buffer != null) {
+		mymap.removeLayer(buffer);
+		mymap.addLayer(new_buffer);
+
+	}
+	else {
+		mymap.addLayer(new_buffer);
+		console.log("added layer");
+	};
+	
+	buffer = new_buffer;
+
+	}; 
+
+</script>
+
+</body>
+</html>
